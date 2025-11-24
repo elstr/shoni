@@ -23,6 +23,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Set up variables
         id: vars
         run: |
@@ -39,29 +48,11 @@ jobs:
             echo "focus=Upper Body & Cardio" >> $GITHUB_OUTPUT
           fi
 
-      - name: Generate workout routine file
+      - name: Generate workout routine with Claude API
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          # Find the most recent template file for the selected day
-          TEMPLATE_FILE=$(ls -t *_day${{ steps.vars.outputs.day_number }}_routine.md 2>/dev/null | head -1)
-
-          if [ -z "$TEMPLATE_FILE" ]; then
-            echo "Error: No template file found for Day ${{ steps.vars.outputs.day_number }}"
-            exit 1
-          fi
-
-          # Create new filename with current date
-          NEW_FILE="${{ steps.vars.outputs.date }}_day${{ steps.vars.outputs.day_number }}_routine.md"
-
-          echo "Using template: $TEMPLATE_FILE"
-          echo "Creating new file: $NEW_FILE"
-
-          # Copy template to new file
-          cp "$TEMPLATE_FILE" "$NEW_FILE"
-
-          # Update the session date in the new file (first line after title)
-          sed -i "2s/.*/\*\*Session\*\*: $(date '+%B %d, %Y')/" "$NEW_FILE"
-
-          echo "✅ Generated workout routine: $NEW_FILE"
+          node scripts/generate-routine.js ${{ steps.vars.outputs.day_number }} ${{ steps.vars.outputs.date }}
 
       - name: Commit and push changes
         run: |

@@ -1,0 +1,20 @@
+{
+  "name": "shoni",
+  "version": "1.0.0",
+  "description": "Gym Trainer Agent - Personalized workout routine generator",
+  "type": "module",
+  "scripts": {
+    "generate": "node scripts/generate-routine.js"
+  },
+  "keywords": [
+    "fitness",
+    "workout",
+    "gym",
+    "trainer"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1"
+  }
+}
